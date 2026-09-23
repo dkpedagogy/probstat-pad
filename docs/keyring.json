@@ -1,0 +1,18 @@
+{
+  "kdf": "PBKDF2-SHA256",
+  "iterations": 200000,
+  "entries": [
+    {
+      "role": "student",
+      "salt": "nLazCjvelHnbg4DBbuqKzQ==",
+      "iv": "9V9+UqLvf8ocg5Zx",
+      "wrapped": "EMQQEEGOOLOe1ZTYX3cWr139xOrYSrv8rSbEVqf+/q8m+Uang1xsz1YLyc7dTPNd"
+    },
+    {
+      "role": "teacher",
+      "salt": "/bDYRfhhamykepazb7UA2A==",
+      "iv": "s7lQ1c6s8m3Z9565",
+      "wrapped": "CATixKOT8YOkLffv1fu2lHmMlcAAciLlIsiEkPRoqPOTNdrADyWpyuSQ555hFlOP"
+    }
+  ]
+}

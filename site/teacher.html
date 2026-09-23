@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>확률과 통계 교사 대시보드</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #F2F4F6;
+      --panel: #FFFFFF;
+      --panel2: #F7F8FA;
+      --line: #E5E8EB;
+      --ink: #191F28;
+      --muted: #6B7684;
+      --primary: #0E2C78;
+      --primary-strong: #0A2160;
+      --primary-soft: #E7ECF8;
+      --primary-text-on: #FFFFFF;
+      --good: #1B7F4C;
+      --bad: #D0342C;
+      --hard: #B45309;
+      --focus: #0E2C78;
+      --shadow: 0 6px 20px rgba(25,31,40,.06);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        color-scheme: dark;
+        --bg: #101418;
+        --panel: #17191D;
+        --panel2: #1F2329;
+        --line: #2A2F36;
+        --ink: #E9ECF1;
+        --muted: #9AA3AE;
+        --primary: #3B5BC6;
+        --primary-strong: #304AA4;
+        --primary-soft: #252F55;
+        --primary-text-on: #FFFFFF;
+        --focus: #91A7FF;
+        --shadow: 0 6px 20px rgba(0,0,0,.22);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink); font-family: -apple-system, "Pretendard", sans-serif; overscroll-behavior: none; }
+    body { font-size: 16px; }
+    button, input, select { font: inherit; }
+    button { min-width: 44px; min-height: 44px; border: 1px solid var(--line); border-radius: 14px; padding: 8px 14px; background: var(--panel); color: var(--ink); cursor: pointer; transition: background-color .16s ease, border-color .16s ease, transform .16s ease; }
+    button:hover { background: var(--panel2); }
+    button:active { transform: translateY(1px); }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+    .primary { background: var(--primary); color: var(--primary-text-on); border-color: var(--primary); font-weight: 700; }
+    .primary:hover { background: var(--primary-strong); }
+    .secondary { background: var(--primary-soft); border-color: transparent; color: var(--primary); }
+    .hidden { display: none !important; }
+    .center { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+    .card { width: min(460px, 100%); padding: 32px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .brand-mark { width: 42px; height: 42px; border-radius: 14px; background: var(--primary); display: grid; place-items: center; }
+    .brand-mark svg { width: 27px; height: 27px; }
+    .brand h1 { margin: 0; font-size: 22px; line-height: 1.3; font-weight: 700; }
+    .field { display: grid; gap: 8px; margin: 16px 0; }
+    .field label { color: var(--muted); font-size: 13px; font-weight: 700; }
+    .field input, .field select { width: 100%; min-height: 44px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--ink); padding: 9px 12px; }
+    .error { min-height: 24px; color: var(--bad); font-size: 13px; }
+    .top { display: flex; gap: 12px; align-items: center; padding: 6px 20px; min-height: 56px; background: var(--panel); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 4; }
+    .top .brand { margin: 0; flex: 1; }
+    .top .brand-mark { width: 34px; height: 34px; border-radius: 12px; }
+    .top .brand-mark svg { width: 22px; height: 22px; }
+    .top h1 { font-size: 16px; }
+    .wrap { max-width: 1280px; margin: auto; padding: 28px 20px; }
+    .source-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 22px; }
+    .source-bar select { min-width: 250px; min-height: 44px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--ink); padding: 8px 16px; }
+    .source-bar input[type=file] { display: none; }
+    .source-note { color: var(--muted); font-size: 13px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 18px; overflow-x: auto; }
+    .tab { border: 0; border-radius: 999px; background: transparent; color: var(--muted); white-space: nowrap; }
+    .tab[aria-selected=true] { color: var(--primary-text-on); background: var(--primary); font-weight: 700; }
+    .table-wrap { overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+    table { width: 100%; min-width: 760px; border-collapse: collapse; }
+    th, td { height: 48px; padding: 8px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; font-size: 13px; }
+    th { background: var(--panel2); color: var(--muted); font-weight: 700; white-space: nowrap; }
+    tbody tr { cursor: pointer; }
+    tbody tr:hover { background: var(--panel2); }
+    .good { color: var(--good); font-weight: 700; }
+    .bad { color: var(--bad); font-weight: 700; }
+    .hard { color: var(--hard); font-weight: 700; }
+    .muted { color: var(--muted); }
+    .empty { padding: 32px; text-align: center; color: var(--muted); background: var(--panel); border: 1px dashed var(--line); border-radius: 18px; }
+    .replay { display: grid; grid-template-columns: minmax(260px, .85fr) minmax(420px, 1.15fr); gap: 16px; margin-top: 18px; }
+    .replay-side, .replay-main { overflow: hidden; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+    .replay-side h2, .replay-main h2 { margin: 0; padding: 16px; border-bottom: 1px solid var(--line); font-size: 16px; }
+    .replay-image-wrap { height: 520px; overflow: auto; padding: 16px; background: var(--panel2); }
+    .replay-image { display: block; width: 100%; height: auto; background: #fff; }
+    .replay-main { padding-bottom: 14px; }
+    .replay-canvas-wrap { height: 520px; overflow: auto; background: repeating-linear-gradient(0deg, transparent 0 31px, color-mix(in srgb, var(--line) 32%, transparent) 32px), repeating-linear-gradient(90deg, transparent 0 31px, color-mix(in srgb, var(--line) 24%, transparent) 32px); touch-action: none; }
+    .replay-canvas { display: block; width: 100%; height: 520px; }
+    .replay-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 12px 16px; }
+    .replay-controls input[type=range] { flex: 1; min-width: 190px; }
+    .speed[aria-pressed=true] { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); }
+    .timeline { height: 42px; margin: 0 16px 10px; position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: var(--panel2); }
+    .stuck-block { position: absolute; top: 0; bottom: 0; background: #D89245; opacity: .75; }
+    .event-mark { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--bad); }
+    .event-mark.solution { background: var(--primary); }
+    .timeline-key { padding: 0 16px; color: var(--muted); font-size: 13px; }
+    .replay-meta { padding: 0 16px; color: var(--muted); font-size: 13px; }
+    .badge { display: inline-flex; padding: 4px 10px; border-radius: 999px; background: var(--panel2); font-size: 13px; }
+    .request { max-width: 360px; white-space: pre-wrap; }
+    .profile-grid { display: grid; gap: 18px; }
+    .profile-panel { padding: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+    .profile-panel h2 { margin: 0 0 14px; font-size: 18px; }
+    .profile-table { width: 100%; min-width: 720px; border-collapse: collapse; }
+    .profile-table th, .profile-table td { height: auto; padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; font-size: 13px; }
+    .profile-table th { background: var(--panel2); color: var(--muted); white-space: nowrap; }
+    .profile-table-wrap { overflow: hidden; }
+    .profile-score { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--primary); }
+    .profile-reason { color: var(--muted); white-space: pre-wrap; }
+    .profile-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; margin-top: 14px; }
+    .footer { text-align: center; color: var(--muted); font-size: 13px; padding: 34px 0 8px; }
+    .modal { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 18px; background: rgba(0,0,0,.45); }
+    .modal-card { width: min(500px, 100%); max-height: 90vh; overflow: auto; padding: 22px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+    @media (max-width: 820px) {
+      .replay { grid-template-columns: 1fr; }
+      .replay-image-wrap, .replay-canvas-wrap { height: 390px; }
+      .replay-canvas { height: 390px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body><div id="app"></div>
+<script src="config.js"></script>
+<script>
+(function(){
+  'use strict';const LOCK_KEY='probstat_pad_lock';function lockState(){try{return JSON.parse(localStorage.getItem(LOCK_KEY)||'{}')}catch(_){return{}}}function lockRemaining(){const s=lockState();return Math.max(0,Math.ceil(((s.until||0)-Date.now())/1000))}function lockFail(){const s=lockState();const fails=(s.fails||0)+1;const delay=fails>=3?Math.min(3600,Math.pow(2,fails-2)):0;localStorage.setItem(LOCK_KEY,JSON.stringify({fails,until:Date.now()+delay*1000}));return delay}function lockReset(){localStorage.removeItem(LOCK_KEY)}
+  const CONFIG=window.APP_CONFIG||{};const app=document.querySelector('#app');
+  const FALLBACK=[];
+  const state={items:[],sessions:[],selected:null,tab:'all',replay:null,replayTimer:null};
+  const $=(s,r=document)=>r.querySelector(s);const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function icon(){return '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 23 13 12l5 7 4-10 5 14" fill="none" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="13" cy="12" r="2" fill="#8ad5c3"/><circle cx="22" cy="9" r="2" fill="#f4b860"/></svg>'}
+  function brand(){return '<div class="brand"><div class="brand-mark">'+icon()+'</div><h1>확률과 통계 교사 대시보드</h1></div>'}
+  async function hashText(t){const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+  const secure={key:null,manifest:null,urls:new Set()};
+  const bytesToB64=bytes=>btoa(String.fromCharCode(...new Uint8Array(bytes)));const b64ToBytes=value=>Uint8Array.from(atob(value),c=>c.charCodeAt(0));
+  async function importContentKey(raw){return crypto.subtle.importKey('raw',raw,{name:'AES-GCM'},false,['decrypt'])}
+  async function readKeyring(){const response=await fetch('keyring.json',{cache:'no-store'});if(!response.ok)throw Error('keyring');return response.json()}
+  async function unlockContent(pass,role){const keyring=await readKeyring();const entry=(keyring.entries||[]).find(x=>x.role===role);if(!entry)throw Error('role');const passwordKey=await crypto.subtle.importKey('raw',new TextEncoder().encode(pass),'PBKDF2',false,['deriveKey']);const wrappingKey=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64ToBytes(entry.salt),iterations:Number(keyring.iterations),hash:'SHA-256'},passwordKey,{name:'AES-GCM',length:256},false,['decrypt']);const raw=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64ToBytes(entry.iv)},wrappingKey,b64ToBytes(entry.wrapped));sessionStorage.setItem('probstat_content_key',bytesToB64(raw));sessionStorage.setItem('probstat_content_role',role);secure.key=await importContentKey(raw);secure.manifest=null;return secure.key}
+  async function restoreContent(role){if(sessionStorage.getItem('probstat_content_role')!==role)return false;const saved=sessionStorage.getItem('probstat_content_key');if(!saved)return false;try{secure.key=await importContentKey(b64ToBytes(saved));secure.manifest=null;return true}catch(_){sessionStorage.removeItem('probstat_content_key');sessionStorage.removeItem('probstat_content_role');secure.key=null;return false}}
+  async function loadManifest(){if(secure.manifest)return secure.manifest;if(!secure.key)throw Error('locked');const response=await fetch('enc/manifest.bin',{cache:'no-store'});if(!response.ok)throw Error('manifest');const encrypted=new Uint8Array(await response.arrayBuffer());const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:encrypted.slice(0,12)},secure.key,encrypted.slice(12));secure.manifest=JSON.parse(new TextDecoder().decode(plain));return secure.manifest}
+  async function secureFetch(path){const manifest=await loadManifest();const entry=manifest[String(path).replace(/^\.\//,'')];if(!entry)throw Error('resource');const response=await fetch('enc/'+entry.id+'.bin',{cache:'no-store'});if(!response.ok)throw Error('resource');const encrypted=new Uint8Array(await response.arrayBuffer());const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:encrypted.slice(0,12)},secure.key,encrypted.slice(12));return new Blob([plain],{type:entry.type||'application/octet-stream'})}
+  async function secureImage(path,image){if(!path||!image||image.dataset.secureLoaded)return;image.dataset.secureLoaded='1';try{const blob=await secureFetch(path);const url=URL.createObjectURL(blob);secure.urls.add(url);image.src=url;image.dataset.secureUrl=url}catch(_){image.removeAttribute('src')}}
+  function hydrateSecureImages(root=app){$$('[data-secure-path]',root).forEach(image=>secureImage(image.dataset.securePath,image))}
+  const secureImageObserver=new MutationObserver(()=>hydrateSecureImages(app));secureImageObserver.observe(app,{childList:true,subtree:true});
+  function releaseSecureUrls(){secure.urls.forEach(url=>URL.revokeObjectURL(url));secure.urls.clear()}
+  document.addEventListener('click',event=>{if(event.target.closest&&event.target.closest('#logout')){releaseSecureUrls();sessionStorage.removeItem('probstat_content_key');sessionStorage.removeItem('probstat_content_role');secure.key=null;secure.manifest=null}});
+  function renderGate(msg){app.innerHTML='<main class="center"><section class="card">'+brand()+'<p class="muted">교사 기록 열람</p><form id="gate"><div class="field"><label for="password">교사 암호</label><input id="password" type="password" autocomplete="current-password" required></div><div id="error" class="error">'+esc(msg||'')+'</div><button class="primary">입장</button></form></section></main>';$('#gate').addEventListener('submit',async e=>{e.preventDefault();{const rem=lockRemaining();if(rem>0){$('#error').textContent='잠시 잠겨 있습니다. '+rem+'초 후 다시 시도할 수 있습니다';return}}try{const typedHash=await hashText($('#password').value);if(typedHash.toLowerCase()===(CONFIG.teacherHash||'').toLowerCase()){}await unlockContent($('#password').value,'teacher');lockReset();await init();renderDashboard()}catch(_){const d=lockFail();$('#error').textContent=d?'암호가 틀렸습니다. '+d+'초 후 다시 시도할 수 있습니다':'암호가 틀렸습니다.'}})}
+  async function loadItems(){try{const blob=await secureFetch('items.json');const d=JSON.parse(await blob.text());if(Array.isArray(d.items))return d.items}catch(_){}return FALLBACK}
+  function normalizeSessions(data){if(Array.isArray(data))return data;if(Array.isArray(data.sessions))return data.sessions;return[]}
+  async function init(){state.items=await loadItems();state.sessions=[]}
+  function itemMeta(id){return state.items.find(x=>x.item_id===id)||{item_id:id,exam_label:id,no:'',unit:'',image:'',solution:''}}
+  function renderDashboard(){app.innerHTML='<header class="top">'+brand()+'<button id="logout">나가기</button></header><main class="wrap"><div class="source-bar"><select id="sessionSelect" aria-label="학생 세션 선택"><option value="">세션을 선택해야 합니다.</option></select><label for="fileInput" class="primary" style="display:inline-flex;align-items:center;min-height:44px;padding:8px 13px;border-radius:10px;cursor:pointer">JSON 파일 열기</label><input id="fileInput" type="file" accept="application/json,.json"><button id="remoteBtn">서버 목록 불러오기</button><button id="csvBtn">CSV 내보내기</button><span id="sourceNote" class="source-note">JSON 파일 또는 서버 원천</span></div><div class="tabs" role="tablist"><button class="tab" data-tab="all" aria-selected="true">전체 문항</button><button class="tab" data-tab="notes" aria-selected="false">오답과 어려움 모음</button></div><div id="content"></div><div class="footer">전남 국어 이동규 · dkpedagogy@gmail.com</div></main>';$('#logout').addEventListener('click',()=>renderGate(''));$('#fileInput').addEventListener('change',readFile);$('#remoteBtn').addEventListener('click',loadRemote);$('#csvBtn').addEventListener('click',exportCSV);$$('.tab').forEach(b=>b.addEventListener('click',()=>{state.tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',String(x===b)));renderTable()}));fillSessionSelect();renderTable()}
+  function fillSessionSelect(){const select=$('#sessionSelect');if(!select)return;select.innerHTML='<option value="">세션을 선택해야 합니다.</option>'+state.sessions.map(s=>'<option value="'+esc(s.session_id)+'"'+(state.selected&&state.selected.session_id===s.session_id?' selected':'')+'>'+esc(s.student||'이름 없음')+' · '+esc(s.started_at||s.session_id)+'</option>').join('');select.onchange=async()=>{const id=select.value;if(!id){state.selected=null;renderTable();return}state.selected=state.sessions.find(s=>s.session_id===id)||null;if(state.selected&&!state.selected.items.length){const detail=await loadDetailRemote(id);if(detail)state.selected=detail}renderTable()}}
+  async function readFile(e){const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());const incoming=normalizeSessions(data);state.sessions=incoming.map(s=>({...s,items:Array.isArray(s.items)?s.items:[]}));state.selected=state.sessions[0]||null;fillSessionSelect();renderTable();$('#sourceNote').textContent='파일 '+file.name}catch(_){$('#sourceNote').textContent='JSON 파일을 읽지 못했습니다.'}}
+  async function loadRemote(){if(!CONFIG.syncUrl){$('#sourceNote').textContent='config.syncUrl이 비어 있습니다.';return}try{const base=String(CONFIG.syncUrl).replace(/\/$/,'');const r=await fetch(base+'/api/sessions?key='+encodeURIComponent(CONFIG.teacherHash));if(!r.ok)throw Error();const data=await r.json();state.sessions=(data.sessions||[]).map(s=>({...s,items:Array.isArray(s.items)?s.items:[]}));state.selected=null;fillSessionSelect();renderTable();$('#sourceNote').textContent='서버에서 목록을 읽었습니다.'}catch(_){$('#sourceNote').textContent='서버 목록을 읽지 못했습니다.'}}
+  function selectedItems(){return state.selected&&Array.isArray(state.selected.items)?state.selected.items:[]}
+  function stuckTotal(r){return (r.stuck||[]).reduce((n,x)=>n+Math.max(0,(x.to_ms||0)-(x.from_ms||0)),0)}
+  function isNote(r){return r&&((r.answer&&!r.answer.correct)||r.rating==='hard')}
+  function renderTable(){const c=$('#content');if(!c)return;if(!state.selected){c.innerHTML='<div class="empty">학생별 세션을 선택하면 문항 표가 표시됩니다.</div>';return}const rows=state.tab==='notes'?selectedItems().filter(isNote):selectedItems();if(!rows.length){c.innerHTML='<div class="empty">표시할 문항이 없습니다.</div>';return}c.innerHTML='<div class="table-wrap"><table><thead><tr><th>번호</th><th>소단원</th><th>소요 시간</th><th>정오</th><th>자기평가</th><th>막힌 구간</th><th>해설</th><th>요청문</th></tr></thead><tbody id="rows"></tbody></table></div>';const body=$('#rows');rows.forEach(r=>{const m=itemMeta(r.item_id),tr=document.createElement('tr');tr.innerHTML='<td>'+esc(m.exam_label)+' '+esc(m.no)+'</td><td>'+esc(m.unit)+'</td><td>'+((r.elapsed_ms||0)/1000).toFixed(1)+'초</td><td class="'+(r.answer?(r.answer.correct?'good':'bad'):'muted')+'">'+(r.answer?(r.answer.correct?'정답':'오답'):'미제출')+'</td><td class="'+(r.rating==='hard'?'hard':'')+'">'+esc({easy:'쉬웠음',normal:'보통',hard:'어려웠음'}[r.rating]||'—')+'</td><td>'+((r.stuck||[]).length)+'개 · '+(stuckTotal(r)/1000).toFixed(1)+'초</td><td>'+((r.solution_opened_at)?'열람':'—')+'</td><td class="request">'+esc(r.request_text||'')+(state.tab==='notes'&&r.request_text?'<br><button class="copyReq">요청문 복사</button>':'')+'</td>';tr.addEventListener('click',e=>{if(e.target.closest('.copyReq')){e.stopPropagation();copyRequest(r.request_text)}else openReplay(r,m)});body.appendChild(tr)})}
+  async function copyRequest(text){try{await navigator.clipboard.writeText(text)}catch(_){const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}}
+  async function loadDetailRemote(id){if(!CONFIG.syncUrl)return null;try{const r=await fetch(String(CONFIG.syncUrl).replace(/\/$/,'')+'/api/session/'+encodeURIComponent(id)+'?key='+encodeURIComponent(CONFIG.teacherHash));if(!r.ok)throw Error();return await r.json()}catch(_){return null}}
+  async function openReplay(record,meta){const remote=await loadDetailRemote(state.selected.session_id);if(remote&&Array.isArray(remote.items)){record=remote.items.find(x=>x.item_id===record.item_id)||record}state.replay={record,meta,playhead:0,speed:1};renderReplay()}
+  function renderReplay(){const p=state.replay,r=p.record,m=p.meta,duration=Math.max(1,r.total_ms||r.elapsed_ms||Math.max(0,...(r.strokes||[]).map(s=>s.t1||0)),...(r.events||[]).map(e=>e.t||0));app.innerHTML='<header class="top">'+brand()+'<button id="backDashboard">대시보드</button></header><main class="wrap"><button id="backTable">문항 표로 돌아가기</button><div class="replay"><section class="replay-side"><h2>'+esc(m.exam_label)+' · '+esc(m.no)+'번 · '+esc(m.unit)+'</h2><div class="replay-image-wrap"><img class="replay-image" data-secure-path="'+esc(m.image)+'" alt="문항 이미지"></div></section><section class="replay-main"><h2>필기 재생</h2><div class="replay-canvas-wrap"><canvas id="replayCanvas" class="replay-canvas"></canvas></div><div class="replay-controls"><button id="playBtn" class="primary">재생</button><button id="pauseBtn">일시정지</button><label for="seek">진행</label><input id="seek" type="range" min="0" max="'+duration+'" step="10" value="'+p.playhead+'"><span id="timeLabel">0.0 / '+(duration/1000).toFixed(1)+'초</span><button class="speed" data-speed="1" aria-pressed="true">1x</button><button class="speed" data-speed="4" aria-pressed="false">4x</button><button class="speed" data-speed="16" aria-pressed="false">16x</button></div><div id="timeline" class="timeline" aria-label="문항 타임라인"></div><div class="timeline-key">주황: 막힌 구간 · 빨강: 제출 · 파랑: 해설 열람</div><p class="replay-meta">획 '+(r.strokes||[]).filter(s=>s.tool!=='eraser').length+'개 · 막힌 구간 '+(r.stuck||[]).length+'개 · 총 '+(stuckTotal(r)/1000).toFixed(1)+'초</p></section></div><div class="footer">전남 국어 이동규 · dkpedagogy@gmail.com</div></main>';$('#backDashboard').addEventListener('click',renderDashboard);$('#backTable').addEventListener('click',()=>{state.replay=null;renderDashboard()});const seek=$('#seek');seek.addEventListener('input',()=>{state.replay.playhead=Number(seek.value);drawReplay()});$('#playBtn').addEventListener('click',play);$('#pauseBtn').addEventListener('click',pause);$$('.speed').forEach(b=>b.addEventListener('click',()=>{state.replay.speed=Number(b.dataset.speed);$$('.speed').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))}));drawReplay();renderTimeline(duration)}
+  function replayCanvas(){const c=$('#replayCanvas');const rect=c.getBoundingClientRect();const dpr=Math.max(1,devicePixelRatio||1);c.width=Math.round(rect.width*dpr);c.height=Math.round(520*dpr);const ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return{c,ctx,w:rect.width,h:520}}
+  function drawReplay(){const p=state.replay;if(!p)return;const {ctx,w,h}=replayCanvas();ctx.clearRect(0,0,w,h);(p.record.strokes||[]).forEach(s=>{if(s.tool==='eraser')return;const pts=(s.points||[]).filter(x=>x[3]<=p.playhead);if(!pts.length)return;ctx.save();ctx.strokeStyle=s.color||'#161b2a';ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++){ctx.lineWidth=Math.max(.6,(s.width||2.2)*Math.max(.25,pts[i][2]||.5));ctx.lineTo(pts[i][0],pts[i][1])}if(pts.length===1)ctx.lineTo(pts[0][0]+.2,pts[0][1]+.2);ctx.stroke();ctx.restore()});const label=$('#timeLabel');if(label)label.textContent=(p.playhead/1000).toFixed(1)+' / '+(Math.max(p.record.total_ms||0,...(p.record.events||[]).map(e=>e.t||0))/1000).toFixed(1)+'초';const seek=$('#seek');if(seek)seek.value=p.playhead}
+  function renderTimeline(duration){const t=$('#timeline');if(!t)return;t.innerHTML='';(state.replay.record.stuck||[]).forEach(x=>{const d=document.createElement('div');d.className='stuck-block';d.title=x.kind;d.style.left=(x.from_ms/duration*100)+'%';d.style.width=Math.max(.5,(x.to_ms-x.from_ms)/duration*100)+'%';t.appendChild(d)});(state.replay.record.events||[]).filter(e=>e.type==='submit'||e.type==='solution_open').forEach(e=>{const d=document.createElement('div');d.className='event-mark '+(e.type==='solution_open'?'solution':'');d.title=e.type;d.style.left=(e.t/duration*100)+'%';t.appendChild(d)})}
+  function play(){pause();state.replayTimer=setInterval(()=>{const duration=Number($('#seek').max)||1;state.replay.playhead=Math.min(duration,state.replay.playhead+50*state.replay.speed);drawReplay();if(state.replay.playhead>=duration)pause()},50)}function pause(){if(state.replayTimer){clearInterval(state.replayTimer);state.replayTimer=null}}
+  function exportCSV(){if(!state.selected){return}const head=['학생','세션','문항','소단원','소요시간초','정오','자기평가','막힌구간수','막힌시간초','해설열람','요청문'];const rows=[head];selectedItems().forEach(r=>{const m=itemMeta(r.item_id);rows.push([state.selected.student,state.selected.session_id,m.no,m.unit,(r.elapsed_ms||0)/1000,r.answer?(r.answer.correct?'정답':'오답'):'미제출',{easy:'쉬웠음',normal:'보통',hard:'어려웠음'}[r.rating]||'',(r.stuck||[]).length,stuckTotal(r)/1000,r.solution_opened_at?'열람':'',r.request_text||''])});const csv='\ufeff'+rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='probstat-'+state.selected.student+'-'+state.selected.session_id+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+  function teacherStudents(){const names=new Set(state.sessions.map(s=>s.student).filter(Boolean));if(state.profile?.student)names.add(state.profile.student);return[...names].sort((a,b)=>a.localeCompare(b))}
+  function teacherFormatMs(value){return ((Number(value)||0)/1000).toFixed(1)+'초'}
+  function downloadTeacherJSON(data,filename){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+  function teacherProfilePayload(){if(state.loadedPayload)return state.loadedPayload;return{profile:state.profile||null,sessions:state.sessions.filter(s=>s.student===state.selectedStudent)}}
+  function exportTeacherProfile(){const data=teacherProfilePayload();if(!data.profile){$('#sourceNote').textContent='선택한 학생의 프로필이 없습니다.';return}const student=String(data.profile.student||state.selectedStudent||'student').replace(/[\\/?%*:|"<>]/g,'_');downloadTeacherJSON(data,'probstat_profile_'+student+'.json')}
+  function renderProfile(){const c=$('#content');if(!c)return;const p=state.profile;if(!state.selectedStudent){c.innerHTML='<div class="empty">학생을 선택해야 합니다.</div>';return}if(!p){c.innerHTML='<div class="empty">선택한 학생의 학습 프로필이 없습니다.</div>';return}const ranking=(p.weak_ranking||[]).map(x=>'<tr><td>'+esc(x.unit)+'</td><td class="profile-score">'+Number(x.score||0).toFixed(3)+'</td><td class="profile-reason">'+esc(x.reason||'')+'</td></tr>').join('')||'<tr><td colspan="3" class="muted">기록 없음</td></tr>';const units=Object.entries(p.units||{}).sort((a,b)=>a[0].localeCompare(b[0])).map(([unit,u])=>{const attempts=Number(u.attempts||0);return'<tr><td>'+esc(unit)+'</td><td>'+attempts+'</td><td>'+ (attempts?(Number(u.correct||0)/attempts*100).toFixed(1)+'%':'—')+'</td><td>'+Number(u.hard_count||0)+'</td><td>'+teacherFormatMs(u.avg_elapsed_ms)+'</td><td>'+teacherFormatMs(u.total_stuck_ms)+'</td></tr>'}).join('')||'<tr><td colspan="6" class="muted">기록 없음</td></tr>';const requests=(p.requests||[]).slice().reverse().map(x=>'<tr><td>'+esc(x.at||'')+'</td><td>'+esc(x.item_id||'')+'</td><td>'+esc(x.unit||'')+'</td><td class="request">'+esc(x.text||'')+'</td></tr>').join('')||'<tr><td colspan="4" class="muted">요청문 없음</td></tr>';c.innerHTML='<div class="profile-grid"><section class="profile-panel"><h2>약점 순위</h2><div class="profile-table-wrap"><table class="profile-table"><thead><tr><th>소단원</th><th>점수</th><th>근거</th></tr></thead><tbody>'+ranking+'</tbody></table></div></section><section class="profile-panel"><h2>소단원별 지표</h2><div class="profile-table-wrap"><table class="profile-table"><thead><tr><th>소단원</th><th>시도</th><th>정답률</th><th>어려움 수</th><th>평균 시간</th><th>막힘 시간</th></tr></thead><tbody>'+units+'</tbody></table></div></section><section class="profile-panel"><h2>유사문제 요청문</h2><div class="profile-table-wrap"><table class="profile-table"><thead><tr><th>시각</th><th>문항</th><th>소단원</th><th>요청문</th></tr></thead><tbody>'+requests+'</tbody></table></div><div class="profile-actions"><button id="profileExportBtn" class="secondary">상세 분석용 데이터 내보내기</button></div></section></div>';$('#profileExportBtn').addEventListener('click',exportTeacherProfile)}
+  async function loadTeacherProfile(){if(!state.selectedStudent){state.profile=null;renderProfile();return}if(state.loadedPayload&&state.loadedPayload.profile&&state.loadedPayload.profile.student===state.selectedStudent){state.profile=state.loadedPayload.profile;renderProfile();return}if(!CONFIG.syncUrl){state.profile=null;renderProfile();return}try{const r=await fetch(String(CONFIG.syncUrl).replace(/\/$/,'')+'/api/profile/'+encodeURIComponent(state.selectedStudent)+'?key='+encodeURIComponent(CONFIG.teacherHash));if(!r.ok)throw Error();state.profile=await r.json();renderProfile()}catch(_){state.profile=null;renderProfile()}}
+  function fillStudentSelect(){const select=$('#studentSelect');if(!select)return;const students=teacherStudents();if(!state.selectedStudent||!students.includes(state.selectedStudent))state.selectedStudent=students[0]||'';select.innerHTML='<option value="">학생을 선택해야 합니다.</option>'+students.map(s=>'<option value="'+esc(s)+'"'+(s===state.selectedStudent?' selected':'')+'>'+esc(s)+'</option>').join('');select.onchange=async()=>{state.selectedStudent=select.value;state.selected=state.sessions.find(s=>s.student===state.selectedStudent)||null;fillSessionSelect();if(state.tab==='profile')await loadTeacherProfile();else renderTable()}}
+  function fillSessionSelect(){const select=$('#sessionSelect');if(!select)return;const sessions=state.sessions.filter(s=>!state.selectedStudent||s.student===state.selectedStudent);select.innerHTML='<option value="">세션을 선택해야 합니다.</option>'+sessions.map(s=>'<option value="'+esc(s.session_id)+'"'+(state.selected&&state.selected.session_id===s.session_id?' selected':'')+'>'+esc(s.started_at||s.session_id)+'</option>').join('');select.onchange=async()=>{const id=select.value;if(!id){state.selected=null;renderTable();return}state.selected=state.sessions.find(s=>s.session_id===id)||null;if(state.selected&&!state.selected.items.length){const detail=await loadDetailRemote(id);if(detail)state.selected=detail}renderTable()}}
+  function renderDashboard(){app.innerHTML='<header class="top">'+brand()+'<button id="logout">나가기</button></header><main class="wrap"><div class="source-bar"><select id="studentSelect" aria-label="학생 선택"><option value="">학생을 선택해야 합니다.</option></select><select id="sessionSelect" aria-label="학생 세션 선택"><option value="">세션을 선택해야 합니다.</option></select><label for="fileInput" class="primary" style="display:inline-flex;align-items:center;min-height:44px;padding:8px 13px;border-radius:10px;cursor:pointer">JSON 파일 열기</label><input id="fileInput" type="file" accept="application/json,.json"><button id="remoteBtn">서버 목록 불러오기</button><button id="csvBtn">CSV 내보내기</button><span id="sourceNote" class="source-note">JSON 파일 또는 서버 원천</span></div><div class="tabs" role="tablist"><button class="tab" data-tab="all" aria-selected="true">전체 문항</button><button class="tab" data-tab="notes" aria-selected="false">오답과 어려움 모음</button><button class="tab" data-tab="profile" aria-selected="false">학습 프로필</button></div><div id="content"></div><div class="footer">전남 국어 이동규 · dkpedagogy@gmail.com</div></main>';$('#logout').addEventListener('click',()=>renderGate(''));$('#fileInput').addEventListener('change',readFile);$('#remoteBtn').addEventListener('click',loadRemote);$('#csvBtn').addEventListener('click',exportCSV);$$('.tab').forEach(b=>b.addEventListener('click',async()=>{state.tab=b.dataset.tab;$$('.tab').forEach(x=>x.setAttribute('aria-selected',String(x===b)));if(state.tab==='profile')await loadTeacherProfile();else renderTable()}));fillStudentSelect();fillSessionSelect();renderTable()}
+  function init(){state.items=[];state.sessions=[];state.selected=null;state.profile=null;state.loadedPayload=null;state.selectedStudent='';return loadItems().then(items=>{state.items=items})}
+  async function readFile(e){const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());state.loadedPayload=data;state.profile=data.profile||null;state.sessions=normalizeSessions(data).map(s=>({...s,items:Array.isArray(s.items)?s.items:[]}));state.selectedStudent=state.profile?.student||state.sessions[0]?.student||'';state.selected=state.sessions.find(s=>s.student===state.selectedStudent)||state.sessions[0]||null;fillStudentSelect();fillSessionSelect();renderTable();$('#sourceNote').textContent='파일 '+file.name}catch(_){$('#sourceNote').textContent='JSON 파일을 읽지 못했습니다.'}}
+  async function loadRemote(){if(!CONFIG.syncUrl){$('#sourceNote').textContent='config.syncUrl이 비어 있습니다.';return}try{const base=String(CONFIG.syncUrl).replace(/\/$/,'');const r=await fetch(base+'/api/sessions?key='+encodeURIComponent(CONFIG.teacherHash));if(!r.ok)throw Error();const data=await r.json();state.loadedPayload=null;state.profile=null;state.sessions=(data.sessions||[]).map(s=>({...s,items:Array.isArray(s.items)?s.items:[]}));state.selectedStudent=state.sessions[0]?.student||'';state.selected=state.sessions[0]||null;fillStudentSelect();fillSessionSelect();renderTable();$('#sourceNote').textContent='서버에서 목록을 읽었습니다.'}catch(_){$('#sourceNote').textContent='서버 목록을 읽지 못했습니다.'}}
+  function renderTable(){if(state.tab==='profile'){renderProfile();return}const c=$('#content');if(!c)return;if(!state.selected){c.innerHTML='<div class="empty">학생별 세션을 선택하면 문항 표가 표시됩니다.</div>';return}const rows=state.tab==='notes'?selectedItems().filter(isNote):selectedItems();if(!rows.length){c.innerHTML='<div class="empty">표시할 문항이 없습니다.</div>';return}c.innerHTML='<div class="table-wrap"><table><thead><tr><th>번호</th><th>소단원</th><th>소요 시간</th><th>정오</th><th>자기평가</th><th>막힌 구간</th><th>해설</th><th>요청문</th></tr></thead><tbody id="rows"></tbody></table></div>';const body=$('#rows');rows.forEach(r=>{const m=itemMeta(r.item_id),tr=document.createElement('tr');tr.innerHTML='<td>'+esc(m.exam_label)+' '+esc(m.no)+'</td><td>'+esc(m.unit)+'</td><td>'+((r.elapsed_ms||0)/1000).toFixed(1)+'초</td><td class="'+(r.answer?(r.answer.correct?'good':'bad'):'muted')+'">'+(r.answer?(r.answer.correct?'정답':'오답'):'미제출')+'</td><td class="'+(r.rating==='hard'?'hard':'')+'">'+esc({easy:'쉬웠음',normal:'보통',hard:'어려웠음'}[r.rating]||'—')+'</td><td>'+((r.stuck||[]).length)+'개 · '+(stuckTotal(r)/1000).toFixed(1)+'초</td><td>'+((r.solution_opened_at)?'열람':'—')+'</td><td class="request">'+esc(r.request_text||'')+(state.tab==='notes'&&r.request_text?'<br><button class="copyReq">요청문 복사</button>':'')+'</td>';tr.addEventListener('click',e=>{if(e.target.closest('.copyReq')){e.stopPropagation();copyRequest(r.request_text)}else openReplay(r,m)});body.appendChild(tr)})}
+  async function exportTeacherProfile(){if(!state.selectedStudent)return;if(state.loadedPayload){const student=String(state.loadedPayload.profile?.student||state.selectedStudent).replace(/[\\/?%*:|"<>]/g,'_');downloadTeacherJSON(state.loadedPayload,'probstat_profile_'+student+'.json');return}if(!CONFIG.syncUrl){$('#sourceNote').textContent='서버 주소가 없습니다.';return}try{const base=String(CONFIG.syncUrl).replace(/\/$/,'');const r=await fetch(base+'/api/export/'+encodeURIComponent(state.selectedStudent)+'?key='+encodeURIComponent(CONFIG.teacherHash));if(!r.ok)throw Error();const data=await r.json();const student=String(data.profile?.student||state.selectedStudent).replace(/[\\/?%*:|"<>]/g,'_');downloadTeacherJSON(data,'probstat_profile_'+student+'.json')}catch(_){$('#sourceNote').textContent='상세 분석 데이터를 받지 못했습니다.'}}
+  async function boot(){if(await restoreContent('teacher')){await init();renderDashboard()}else renderGate('')}
+  boot().catch(()=>renderGate(''));
+})();
+</script>
+</body>
+</html>

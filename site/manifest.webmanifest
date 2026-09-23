@@ -1,0 +1,10 @@
+{
+  "name": "확률과 통계 필기 학습",
+  "short_name": "확률통계 필기",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f6f7fb",
+  "theme_color": "#243a73",
+  "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}]
+}
